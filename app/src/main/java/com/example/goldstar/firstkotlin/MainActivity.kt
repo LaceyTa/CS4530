@@ -1,11 +1,8 @@
 package com.example.goldstar.firstkotlin
 
-import android.content.res.AssetManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import java.io.File
-import java.io.InputStream
 
 private fun tag(): String = "MainActivity"
 private fun logWithTag(tag: String, message: String) = Log.e(tag, message)
@@ -23,28 +20,42 @@ class MainActivity : AppCompatActivity()
         setContentView(R.layout.activity_main)
 
         //Creates regex to remove punctuation, numbers, and capital letters
-        val regexRemove = Regex("[a-z]+")
+        val regexRemove = Regex("^[A-Z].*")
 
         //Splits string into words based on whitespace
-        var stringAsList : List<String> = inputString.split(" ")
+        //IF it needs to have punctuation at the end included
+        //var stringAsList : List<String> = inputString.split(" ")
+        //IF it needs to have punctuation at the end removed
+        var stringAsList: List<String> = inputString.split(" ", ",", "?", "!", ".")
 
         // Reduces the main list into only lowercase words, with a letter count that is even
-        var reducedList : List<String> = stringAsList
-                .filter{it.matches(regexRemove)}
-                .filter { it.count()%2 == 0 }
+        var reducedList: List<String> = stringAsList
+                .filter { it.matches(regexRemove) }
+                .filter { it.count() % 2 == 0 }
 
         //Maps the list by word and number of appearances, then removes those with only one
         var reducedMap = reducedList
-                .groupingBy{it}.eachCount()
-                .filter {it.value > 1}
+                .groupingBy { it }.eachCount()
+                .filter { it.value > 1 }
 
         //Sorts the map by length of word
         var finalReducedMap = reducedMap.keys.sortedBy { it -> it.length }
+        finalReducedMap = finalReducedMap.reversed()
 
-        for(i in finalReducedMap)
+        //Final longest number, and list for all the words that are that long
+        var longestLength: Int = finalReducedMap[0].length
+        val finalList: MutableList<String> = finalReducedMap
+                .filter { it.length == longestLength }
+                .toMutableList()
+
+
+
+        if(finalList.count() > 1)
         {
-            logDefaultTag("${i}")
+            finalList.sortBy { it -> it.toCharArray().first()}
         }
+
+        logDefaultTag(finalList[0])
 
 
     }
